@@ -1,0 +1,10 @@
+{
+  "name": "nb-sep-functions",
+  "private": true,
+  "engines": {
+    "node": "20"
+  },
+  "scripts": {
+    "build": "echo build-ok"
+  }
+}

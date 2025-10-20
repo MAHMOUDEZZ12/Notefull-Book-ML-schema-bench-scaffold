@@ -1,0 +1,32 @@
+openapi: 3.0.3
+info:
+  title: Schema Exchange Protocol (SEP)
+  version: 0.1.0
+servers:
+  - url: https://{region}-{project}.cloudfunctions.net/sepAggregate
+    variables:
+      region: { default: us-central1 }
+      project: { default: YOUR_FIREBASE_PROJECT_ID }
+paths:
+  /health:
+    get:
+      summary: Health check
+      responses: { '200': { description: OK } }
+  /aggregate:
+    post:
+      summary: DP-safe aggregate counts
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                counts:
+                  type: object
+                  additionalProperties: { type: integer }
+                kAnon: { type: integer, default: 100 }
+                epsilon: { type: number, default: 0.5 }
+      responses:
+        '200': { description: Noisy counts returned }
+        '400': { description: Bad request }

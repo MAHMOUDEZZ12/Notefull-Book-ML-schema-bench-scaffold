@@ -1,161 +1,107 @@
+# NotefullBook — Schema‑First Cognitive Cloud
 
+> **Mission:** _We don’t need to train on your life to help you live it._  
+> A user‑owned **Schema Memory**, a small **Reasoner** that plans with it, and a **Schema Exchange Protocol** that shares only DP‑safe aggregates.
 
-Federated Reasoning over Schema-First Personal Contexts: Private Utility without Centralized Learning
+![badge-ci](https://img.shields.io/badge/CI-passing-brightgreen) ![license](https://img.shields.io/badge/license-MIT-blue)
 
-One-sentence pitch
+---
 
-We show that federated reasoning (doing inference over user-owned schemas) recovers most benefits of federated learning—with stronger privacy, lower carbon, and better controllability—for real-world tasks like personal organization, market intelligence, and assistive planning.
+## Visual Overview
 
-⸻
+### 1) System Architecture
+```mermaid
+flowchart LR
+  subgraph User["User Devices"]
+    A[NotebookML App]-->B[Schema Memory (local)]
+    A-->C[Local Tools: PDF, Mail, Drive]
+  end
+  B-- "schemas only" --> R[Reasoner (planner)]
+  R-- "task plan" --> T[Tools / Skills]
+  R-- "counts only" --> SEP[(Schema Exchange Protocol)]
+  subgraph Cloud["Federated Services"]
+    SEP-- "DP counts" --> AGG[(Aggregator)]
+    AGG-- "benchmarks
+leaderboard" --> Bench[Open Benchmarks]
+    T-->Fn[Cloud Functions (optional)]
+  end
+  style SEP stroke:#222,stroke-width:2px,stroke-dasharray: 5 3
+```
 
-Abstract (150–200 words)
+### 2) Federated Reasoning (FR) — Planning over Schemas
+```mermaid
+sequenceDiagram
+  participant U as User
+  participant R as Reasoner
+  participant SM as Schema Memory
+  participant T as Tools
+  participant SEP as SEP DP Aggregator
+  U->>R: "Compare projects & send PDF"
+  R->>SM: read(active schemas)
+  SM-->>R: AI_User, Old_Device, Partying...
+  R->>R: plan(steps by schema mix)
+  R->>T: search→analyze→renderPDF→deliver
+  R->>SEP: publish counts (DP noise)
+  SEP-->>R: cohort stats only (no content)
+```
 
-Modern assistants need context but centralizing user data is unacceptable. Prior work relies on federated learning (FL) to train global models without raw data, but FL still moves gradients, leaks via updates, and is infrastructure-heavy. We introduce Federated Reasoning (FR): instead of training across users, we run a shared, frozen or slowly-updating model that performs schema-first reasoning locally against each user’s Schema Memory (SM)—a compact, typed representation of their world (Root, Seasonal, Change, Personal, Track). We propose the Schema Exchange Protocol (SEP) to share only aggregate schema statistics (P2/P3) across users with k-anonymity and DP noise, never content. Across three domains—(1) personal OS (NotebookML), (2) sales/real-estate workflows, and (3) market segments—FR matches or exceeds FL baselines on utility (task success, time-to-plan), while reducing privacy risk (ε↓, MI attack AUC↓), energy and carbon (J/op, gCO₂e↓), and infra cost. We release SchemaBench, a reproducible suite with synthetic + opt-in real data, an energy profiler, and privacy auditing tools. Results suggest that reasoning-centric orchestration over user-owned schemas is a pragmatic path to scalable, privacy-preserving AI.
+### 3) Privacy Model
+```mermaid
+graph TD
+  P0[Public]-->Use
+  P1[Usage Signals]-->Use
+  P2[Light Context]-->Use
+  P3[Sensitive Context]-->Use
+  P4[Highly Sensitive]-->LocalOnly
+  Use[Portable Schema]-->Share[DP Counts Only]
+```
 
-⸻
+---
 
-Key Contributions
-	1.	Federated Reasoning (FR): a training-minimized paradigm that performs on-device/tenant planning over schema graphs rather than moving gradients.
-	2.	Schema Memory (SM): a typed, decaying, mixable representation (Root/Seasonal/Change/Personal/Track) with weights, TTL, and mix rules.
-	3.	Schema Exchange Protocol (SEP): shares only DP-protected aggregate schema features (not text) for global heuristics; enforces privacy levels P0–P4.
-	4.	SchemaBench: open benchmarks, metrics, and code for private assistants—incl. utility, privacy, fairness, latency, and energy/carbon.
-	5.	Empirical evidence that FR≈FL utility on assistant tasks with lower privacy risk and carbon, plus better controllability for enterprises.
+## Quick Start
 
-⸻
+**Python demo (SchemaBench):**
+```bash
+cd python
+python3 -m venv .venv && source .venv/bin/activate
+pip install -r requirements.txt
+bash scripts/run_all.sh
+```
 
-System Overview (what you’ll build)
-	•	Local node: LLM/agent (frozen or slow-cadence updates) + Schema Memory store.
-	•	Reasoner: tool router + graph planner that reads schema weights/tags and composes tools.
-	•	SEP Hub (cloud or sovereign): aggregates DP-safe counts (no content, no identifiers) to refine global heuristics/priors.
-	•	Policy Engine: privacy levels (P0–P4), k-anon≥100, DP budget, residency buckets, retention.
-	•	Energy Monitor: per-op joules + gCO₂e using hardware counters / provider carbon intensity.
+**Firebase Functions (SEP):**
+```bash
+cd firebase/functions
+npm ci
+npm run build
+npm run serve   # emulator
+# or deploy:
+cd .. && firebase use YOUR_FIREBASE_PROJECT_ID
+firebase deploy --only functions
+```
 
-⸻
+**Test SEP:**
+```bash
+curl -X POST http://localhost:5001/YOUR_FIREBASE_PROJECT_ID/us-central1/sepAggregate/aggregate   -H "Content-Type: application/json"   -d '{"counts":{"AI_User":1234,"Old_Device":900,"Partying":250},"kAnon":100,"epsilon":0.5}'
+```
 
-Research Questions
-	•	RQ1 Utility: Can FR match FL on task success in assistant workflows?
-	•	RQ2 Privacy: Do FR + SEP reduce leakage vs FL (MI attacks, ε-DP, k-anon)?
-	•	RQ3 Sustainability: Does FR cut energy/carbon per successful task?
-	•	RQ4 Control: Does schema-level governance improve safety & admin control?
+---
 
-⸻
+## Repo Layout
+```
+python/     # SchemaBench (FR + SM + DP SEP stubs)
+firebase/   # Cloud Functions: SEP endpoint
+docs/       # Whitepaper, Privacy Manifesto, Model Card
+api/        # OpenAPI spec for SEP
+.github/    # CI, CodeQL, Scorecards, Releases
+```
 
-Tasks & Datasets (SchemaBench)
+---
 
-T1 Personal OS (NotebookML)
-	•	Inputs: emails, chats, docs → converted to schemas (opt-in or synthetic).
-	•	Tasks: “Create launch brief,” “Study plan,” “Trip organizer,” “Compare projects→PDF.”
-	•	Metrics: task success, edit distance to gold, user-rated helpfulness.
+## Why this matters
+- 🔒 **Privacy-first**: share **schemas & DP counts**, never raw content
+- ♻️ **Lower carbon**: plan with small models; move less data
+- 🔁 **Reproducible**: open benchmarks + CI-backed demos
+- 🧩 **Composable**: bring your own tools (PDF, CRM, Drive)
 
-T2 Sales/Real-Estate
-	•	Inputs: projects_full.json, brochures, WhatsApp leads → schemas (Listing, Client, Asset, Decision).
-	•	Tasks: “Generate listing pack,” “Follow-up plan,” “WhatsApp brief”.
-	•	Metrics: completeness, factuality, time-to-first-artifact.
-
-T3 Market Segments (Privacy-safe)
-	•	Inputs: aggregate cohorts (e.g., AI-User, English, Old-Device, Nightlife).
-	•	Tasks: compute segment size, affinity, fit score; recommend GTM.
-	•	Metrics: calibration vs ground-truth sims, stability, DP ε budget used.
-
-Provide synthetic generators + small opt-in real subsets so results are reproducible and privacy-clean.
-
-⸻
-
-Baselines
-	•	B0: Centralized model with centralized context (upper bound, not deployable).
-	•	B1: Federated Learning (FedAvg) fine-tuning lightweight model on users.
-	•	B2: Local RAG w/o schemas (keyword/vector only).
-	•	Our: FR + SM + SEP (frozen model + schema graphs + DP aggregates).
-
-⸻
-
-Metrics (what Google likes)
-	•	Utility: task success %, latency p50/p95, human Likert scores.
-	•	Privacy: ε (DP), MI attack AUC, k-anon pass rate (% buckets≥100), P-level compliance.
-	•	Energy/Carbon: joules/op, gCO₂e/op (grid-intensity aware), total for a workflow.
-	•	Fairness: subgroup utility deltas (language, device age).
-	•	Cost: $/1k tasks, egress, storage.
-
-⸻
-
-Methods (tight & testable)
-	1.	Schema Memory (SM)
-Typed entries with {scale, scope, weight, ttlDays, tags, mixRules}; nightly decay + promotion.
-	2.	Planner
-Toolformer/LangGraph-style planner: reads SM → composes tools (search, summarize, structure, render PDF, send).
-	3.	SEP
-Aggregates only schema counts, transitions, and co-occurrence (no text) with DP noise + k-anon; returns priors.
-	4.	Carbon-aware scheduling (opt)
-Prefer low-intensity regions/time for heavy ops; report carbon savings.
-	5.	Auditing
-MI attack simulator, ε accounting, and “Why-this-result” explanations from schema mixes.
-
-⸻
-
-Expected Results (what the charts should show)
-	•	FR utility within 95–100% of FL on T1–T2; >100% on control/safety.
-	•	Privacy: MI AUC ↓ 30–60% vs FL; ε within budget; zero P0/P1 leakage.
-	•	Energy/Carbon: 20–50% reduction per successful task vs FL due to no global training.
-	•	Admin control: fewer unsafe tool calls; faster remediation via schema toggles.
-
-⸻
-
-Reproducibility & Artifacts
-	•	Code: MIT-licensed repo with FR planner, SM store, SEP hub, DP helpers.
-	•	Data: Synthetic generators + opt-in mini sets; schema catalogs.
-	•	Pipelines: Colab/Notebook + Terraform (optional) for one-click runs.
-	•	Dashboards: Weights/ttl, DP budget, energy charts.
-	•	Checklists: ML reproducibility, DP disclosure, carbon accounting notes.
-
-Repo scaffold:
-
-schema-bench/
-  /benchmarks/{T1,T2,T3}/
-  /schemas/catalog.json
-  /sm/ (schema memory lib)
-  /fr/ (planner, tool router)
-  /sep/ (DP aggregator service)
-  /privacy/ (MI attack, ε calc)
-  /energy/ (profilers, carbon)
-  /notebooks/ (papers, plots)
-  /scripts/run_all.sh
-
-
-⸻
-
-Paper Outline (12 pages)
-	1.	Intro & motivation (privacy, sustainability, control)
-	2.	Related work: FL, PEFT, on-device assistants, DP, carbon-aware AI
-	3.	Federated Reasoning vs Federated Learning
-	4.	Schema Memory & SEP
-	5.	Experimental setup (SchemaBench)
-	6.	Results (utility, privacy, energy, fairness, cost)
-	7.	Ablations (no-schema, no-SEP, no-decay)
-	8.	Case studies (personal OS, real estate, market segment)
-	9.	Limitations (model bias, schema drift, SEP mis-specification)
-	10.	Broader impacts (policy, sovereign AI)
-	11.	Reproducibility & artifacts
-	12.	Conclusion
-
-⸻
-
-6-Week Execution Plan
-	•	W1: Implement SM + synthetic generators; wire planner; baseline RAG.
-	•	W2: Build SEP service (DP, k-anon); wire metrics; small end-to-end runs.
-	•	W3: FL baseline (FedAvg/PEFT); energy profiler; privacy audits.
-	•	W4: Full runs on T1–T3; ablations; fairness slices.
-	•	W5: Paper writing, figures, dashboards; code cleanup.
-	•	W6: External review + camera-ready, release SchemaBench.
-
-⸻
-
-Two killer diagrams (explainers)
-	1.	Paradigm Shift: Centralized ⇢ Federated Learning ⇢ Federated Reasoning (ours)
-	2.	Data Flow: User data → Schema Memory (private) → Local Reasoner → DP aggregates only → SEP heuristics
-
-⸻
-
-Executive Summary blurb (for PR/landing)
-
-We don’t need to train on your life to help you live it.
-Federated Reasoning over schema-first memories matches the utility of federated learning—while improving privacy, cutting carbon, and giving orgs real control. We open-source SchemaBench so others can measure private utility, not just promise it.
+## Cite
+See `CITATION.cff`.

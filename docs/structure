@@ -1,0 +1,37 @@
+notefull-ml/
+├─ README.md
+├─ LICENSE
+├─ .gitignore
+├─ CODE_OF_CONDUCT.md
+├─ SECURITY.md
+├─ CONTRIBUTING.md
+├─ GOVERNANCE.md
+├─ CITATION.cff
+├─ ROADMAP.md
+├─ release-please-config.json
+├─ .github/
+│  ├─ ISSUE_TEMPLATE/bug_report.md
+│  ├─ ISSUE_TEMPLATE/feature_request.md
+│  ├─ workflows/
+│  │  ├─ ci.yml
+│  │  ├─ codeql.yml
+│  │  ├─ scorecards.yml
+│  │  ├─ release-please.yml
+│  │  └─ ossf-deps.yml
+│  ├─ dependabot.yml
+│  └─ PULL_REQUEST_TEMPLATE.md
+├─ docs/                # Docusaurus (or mkdocs) site
+│  ├─ docusaurus.config.js
+│  ├─ sidebars.js
+│  ├─ src/pages/index.md
+│  ├─ whitepaper.md
+│  ├─ privacy_manifesto.md
+│  └─ model_card.md
+├─ api/
+│  └─ sep-openapi.yaml  # OpenAPI spec for Schema Exchange Protocol
+├─ python/              # (your SchemaBench)
+├─ firebase/            # (your Functions SEP)
+├─ datasets/            # (projects_full.json)
+└─ examples/
+   ├─ notebooks/quick_start.ipynb
+   └─ curl/sep_aggregate.http

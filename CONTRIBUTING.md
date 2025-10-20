@@ -1,6 +1,5 @@
-# Contributing
-## Dev quick start
-- Python: `cd python && python -m venv .venv && source .venv/bin/activate && pip install -r requirements.txt && bash scripts/run_all.sh`
-- Firebase: `cd firebase/functions && npm ci && npm run build && npm run serve`
+# Contributing to Notefull-Book-ML-schema-bench-scaffold
 
-Conventional commits please (`feat:`, `fix:`, `docs:`...). Add tests where possible.
+- Conventional commits.
+- Keep PRs focused.
+- Node 20 / Python 3.11 as needed.

@@ -1,0 +1,63 @@
+{
+  "version": "0.1.0",
+  "privacy_levels": [
+    "P0",
+    "P1",
+    "P2",
+    "P3",
+    "P4"
+  ],
+  "schemas": [
+    {
+      "id": "AI_User",
+      "segment": "track",
+      "privacy": "P2",
+      "ttlDays": 365,
+      "tags": [
+        "llm",
+        "ai-apps",
+        "benchmarks"
+      ],
+      "mixRules": [
+        {
+          "with": {
+            "tag": "nightlife"
+          },
+          "op": "sum",
+          "addTags": [
+            "after-hours"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "English_Speaker",
+      "segment": "role",
+      "privacy": "P3",
+      "tags": [
+        "en-ui",
+        "en-content"
+      ]
+    },
+    {
+      "id": "Old_Device",
+      "segment": "role",
+      "privacy": "P3",
+      "tags": [
+        "<=2020",
+        "<=4GB",
+        "OS<N-2"
+      ]
+    },
+    {
+      "id": "Partying",
+      "segment": "seasonal",
+      "privacy": "P3",
+      "ttlDays": 90,
+      "tags": [
+        "nightlife",
+        "events"
+      ]
+    }
+  ]
+}
